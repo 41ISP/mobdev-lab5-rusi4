@@ -43,7 +43,7 @@ export default function App() {
       setTasks([...tasks, newTask]);
       setTask('');
     }
-  }
+  };
 
 
 const toggleComplete = (id:string) => {
@@ -54,7 +54,7 @@ const toggleComplete = (id:string) => {
 
   const deleteTask = (id: string) => {
     setTasks(tasks.filter((task) => task.id !==id));
-  }
+  };
 
   return (
     <View style={styles.container}>
@@ -78,14 +78,14 @@ const toggleComplete = (id:string) => {
      renderItem={({ item, index }) => (
 
       <View style={styles.taskContainer}>
-       <TouchableOpacity onPress={() => toggleComplete(index)}>
+       <TouchableOpacity onPress={() => toggleComplete(index.toString())}>
 
         <Text style={[styles.task, item.completed && styles.completed]}>
          {item.text}
         </Text>
        </TouchableOpacity>
        
-       <Button title="Удалить" onPress={() => deleteTask(index)} />
+       <Button title="Удалить" onPress={() => deleteTask(index.toString())} />
       </View>
 
      )}
