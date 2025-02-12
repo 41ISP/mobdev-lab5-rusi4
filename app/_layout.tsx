@@ -44,14 +44,16 @@ export default function App() {
       setTask('');
     }
   }
-//дальше писать
-const toggleComplete = (index: number) => {
-  setTasks(tasks.map((item, i) => i === index ? { ...item, completed: !item.completed} : item));
-}
 
-  const deleteTask = (index: number) => {
-    const updatedTasks = tasks.filter((_, i) => i !== index);
-    setTasks(updatedTasks);
+
+const toggleComplete = (id:string) => {
+  setTasks(tasks.map((task) => 
+  task.id === id ? {...task, completed: !task.completed} : task
+));
+};
+
+  const deleteTask = (id: string) => {
+    setTasks(tasks.filter((task) => task.id !==id));
   }
 
   return (
