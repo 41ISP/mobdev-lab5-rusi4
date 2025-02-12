@@ -1,30 +1,53 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-reanimated';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { Alert, Button, StyleSheet, Text, TextInput, TouchableOpacity, View, FlatList } from 'react-native';
-import { red } from 'react-native-reanimated/lib/typescript/Colors';
+import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View, FlatList } from 'react-native';
+import { Todo } from '../entity/todo.modal'
 
 export default function App() {
   const [task, setTask] = useState('');
-  const [tasks, setTasks] = useState<any[]>([])
+  const [tasks, setTasks] = useState<Todo[]>([])
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      try {
+        const storedTasks = await AsyncStorage.getItem('Задачи');
+        if (storedTasks) {
+          setTasks(JSON.parse(storedTasks));
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки задач: ', error);        
+      }
+    };
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    const saveTasks = async () => {
+      try {
+        await AsyncStorage.setItem('Задачи',JSON.stringify(tasks));
+      } catch (error) {
+        console.error('Ошибка сохранения задач: ', error);        
+      }
+    };
+    saveTasks();
+  }, [tasks]);
 
   const addTask = () => {
-    if (task.length > 0) {
-      setTasks([...tasks, {text: task, completed: false}]);
+    if (task.trim() !== '') {
+      const newTask: Todo = {
+        id: Math.random().toString(36).substring(2,15), 
+        text: task,
+        completed: false
+      };
+      setTasks([...tasks, newTask]);
       setTask('');
     }
   }
-
-  const toggleComplete = (index: number) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index].completed = !updatedTasks[index].completed;
-    setTasks(updatedTasks);
-  }
+//дальше писать
+const toggleComplete = (index: number) => {
+  setTasks(tasks.map((item, i) => i === index ? { ...item, completed: !item.completed} : item));
+}
 
   const deleteTask = (index: number) => {
     const updatedTasks = tasks.filter((_, i) => i !== index);
@@ -41,6 +64,7 @@ export default function App() {
       placeholder="Добавьте задачу..."
       value={task}
       onChangeText={setTask}
+      onSubmitEditing={addTask}
      />
  
      <Button title="Добавить" onPress={addTask} />
@@ -110,71 +134,3 @@ const styles = StyleSheet.create({
    color: '#888',
   },
  });
-
-
-// SplashScreen.preventAutoHideAsync();
-
-// export default function RootLayout() {
-
-//   const colorScheme = useColorScheme();
-//   const [loaded] = useFonts({
-//     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-//   });
-
-//   useEffect(() => {
-//     if (loaded) {
-//       SplashScreen.hideAsync();
-//     }
-//   }, [loaded]);
-
-//   if (!loaded) {
-//     return null;
-//   }
-
-//   const handleSubmit = () => {
-//     alert(firstName)
-//   }
-
-//   const [firstName, setFirstName] = useState('');
-
-//   return (
-//     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-
-//       <View style={styles.container}>
-//         <Text style={styles.title}>Введите запись</Text>
-//         <TextInput value={firstName} onChangeText={setFirstName} onSubmitEditing={handleSubmit} style={styles.input}/>
-//         <TouchableOpacity style={styles.buttonStyle} onPress={handleSubmit}><text>Нажми</text></TouchableOpacity>
-//       </View>
-//     </ThemeProvider>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   title: {
-//     fontSize: 20,
-//     display: 'flex',
-//   },
-//   input: {
-//     fontSize: 20,
-//     borderWidth: 2,
-//     borderRadius: 5,
-//     textAlign: 'center'
-//   },
-//   container: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     width: "100%",
-//     height: "100%"
-//   },
-//   buttonStyle: {
-//     marginTop: 5,
-//     width: 160,
-//     height: 35,
-//     borderWidth: 2,
-//     borderRadius: 5,
-//     textAlign: 'center',
-//     fontSize: 25,
-//     fontFamily: 'bahnschrift',
-//     backgroundColor:'rgb(226, 226, 226)'
-//   }
-// })
